@@ -1,0 +1,7 @@
+google-auth
+earthengine-api
+google-generativeai
+python-dotenv
+geemap
+fastapi
+uvicorn
