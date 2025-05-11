@@ -1,11 +1,16 @@
 from gee.ndvi_point import get_ndvi_at_point
+from utils.constants import NDVI_DATE_RANGES
 
 def predict_recovery_rate(lat: float, lon: float):
     try:       
+        pre_start, pre_end = NDVI_DATE_RANGES["pre"]
+        min_start, min_end = NDVI_DATE_RANGES["min"]
+        now_start, now_end = NDVI_DATE_RANGES["now"]
+    
         # NDVI 계산
-        ndvi_pre = get_ndvi_at_point(lat, lon, "2021-03-01", "2021-04-01")
-        ndvi_min = get_ndvi_at_point(lat, lon, "2023-03-01", "2023-05-01")
-        ndvi_now = get_ndvi_at_point(lat, lon, "2024-04-01", "2024-04-30")
+        ndvi_pre = get_ndvi_at_point(lat, lon, pre_start, pre_end)
+        ndvi_min = get_ndvi_at_point(lat, lon, min_start, min_end)
+        ndvi_now = get_ndvi_at_point(lat, lon, now_start, now_end)
 
         # 회복률 계산
         if ndvi_pre == ndvi_min:
