@@ -9,8 +9,9 @@ from utils.constants import NDVI_BEFORE_DATE, NDVI_AFTER_DATE
 
 app = FastAPI()
 
-# GEE 초기화는 앱 시작 시 1회
-init_gee()
+# GEE 초기화는 앱 시작 시 1회@app.on_event("startup")
+def startup_event():
+    init_gee()
 
 @app.get("/", tags=["Root"])
 def root():
@@ -19,8 +20,11 @@ def root():
 # 아직 적용안된 코드
 @app.get("/fire-events", tags=["Fire"])
 def get_fire_event_data():
-    events = get_forest_fire_events()
-    return {"event": events}
+    try:
+        events = get_forest_fire_events()
+        return {"event": events}
+    except Exception as e:
+        return {"error": str(e)}
 
 @app.get("/fire-damage", tags=["Damage"])
 def get_damage_rate(
