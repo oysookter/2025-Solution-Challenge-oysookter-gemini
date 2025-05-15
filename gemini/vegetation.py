@@ -1,6 +1,6 @@
 # gemini/vegetation.py
 from gemini.vegetation_prompt import generate_vegetation_prompt
-from gemini.vegetation_parser import parse_vegetation_response
+from gemini.vegetation_parser import extract_scientific_name
 import google.generativeai as genai
 import os
 
@@ -13,7 +13,7 @@ def vegetation_at_point(lat: float, lon: float, ndvi: float):
         response = model.generate_content(prompt)
         print("🧠 Gemini answer:\n", response.text)  # check gemini answer
 
-        result = parse_vegetation_response(response.text)
+        result = extract_scientific_name(response.text)
         print("🌿 parsed result:\n", result)  # return real parsed result
         return result
 
