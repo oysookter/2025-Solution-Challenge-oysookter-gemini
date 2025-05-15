@@ -11,10 +11,10 @@ def vegetation_at_point(lat: float, lon: float, ndvi: float):
         prompt = generate_vegetation_prompt(lat, lon, ndvi)
         model = genai.GenerativeModel(model_name)
         response = model.generate_content(prompt)
-        print("🧠 Gemini answer:\n", response.text)  # ✅ check gemini answer
+        print("🧠 Gemini answer:\n", response.text)  # check gemini answer
 
         result = parse_vegetation_response(response.text)
-        print("🌿 parsed result:\n", result)  # ✅ return real parsed result
+        print("🌿 parsed result:\n", result)  # return real parsed result
         return result
 
     except Exception as e:

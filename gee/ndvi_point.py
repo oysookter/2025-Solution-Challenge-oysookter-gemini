@@ -5,7 +5,7 @@ def get_ndvi_at_point(lat: float, lon: float, before_date: str, after_date: str)
         point = ee.Geometry.Point([lon, lat])
         region = point.buffer(1000)  # 1km boundary
 
-        collection = ee.ImageCollection("COPERNICUS/S2_SR") \
+        collection = ee.ImageCollection("COPERNICUS/S2") \
             .filterBounds(region) \
             .filterDate(before_date, after_date) \
             .filter(ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 20))  # Optionally remove clouds
