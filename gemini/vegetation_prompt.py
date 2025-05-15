@@ -1,4 +1,3 @@
-import os
 import google.generativeai as genai
 
 def generate_vegetation_prompt(lat: float, lon: float, ndvi: float) -> str:

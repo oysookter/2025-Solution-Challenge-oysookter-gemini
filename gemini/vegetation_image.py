@@ -3,8 +3,8 @@ from typing import Optional
 
 def search_image_url_wikimedia(query: str) -> Optional[str]:
     """
-    Wikimedia API를 이용해 식물명에 해당하는 첫 번째 이미지 URL을 반환.
-    영문 이름 또는 학명을 기준으로 검색합니다.
+    Returns the first image URL corresponding to the plant name using the Wikipedia API.
+    Search by English name or scientific name.
     """
     search_url = "https://en.wikipedia.org/w/api.php"
     params = {

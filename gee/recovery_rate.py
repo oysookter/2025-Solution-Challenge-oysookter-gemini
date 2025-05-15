@@ -7,27 +7,27 @@ def predict_recovery_rate(lat: float, lon: float):
         min_start, min_end = NDVI_DATE_RANGES["min"]
         now_start, now_end = NDVI_DATE_RANGES["now"]
     
-        # NDVI 계산
+        # NDVI calc
         ndvi_pre = get_ndvi_at_point(lat, lon, pre_start, pre_end)
         ndvi_min = get_ndvi_at_point(lat, lon, min_start, min_end)
         ndvi_now = get_ndvi_at_point(lat, lon, now_start, now_end)
 
-        # 회복률 계산
+        # Recovery rate calc
         if ndvi_pre == ndvi_min:
             recovery_rate = 0.0
         else:
             recovery_rate = (ndvi_now - ndvi_min) / (ndvi_pre - ndvi_min) * 100
-            recovery_rate = max(0, min(recovery_rate, 100))  # 0~100 사이 제한
+            recovery_rate = max(0, min(recovery_rate, 100))  # 0~100 limit
 
-        # 상태 해석 추가
+        # explanation
         if ndvi_now < ndvi_min:
-            status = "악화됨"
+            status = "Worsening"
         elif recovery_rate < 30:
-            status = "회복 중"
+            status = "In Recovery"
         elif recovery_rate < 80:
-            status = "부분 회복"
+            status = "Partial Recovery"
         else:
-            status = "거의 회복"
+            status = "Almost Recovered"
 
         return {
             "ndvi_pre": round(ndvi_pre, 3),
@@ -38,5 +38,5 @@ def predict_recovery_rate(lat: float, lon: float):
         }
 
     except Exception as e:
-        print(f"회복 예측률 계산 오류: {e}")
+        print(f"Recovery Prediction Rate Calc Error: {e}")
         return None

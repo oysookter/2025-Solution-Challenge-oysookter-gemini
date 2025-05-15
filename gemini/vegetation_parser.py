@@ -2,8 +2,8 @@ from gemini.vegetation_image import search_image_url_wikimedia
 
 def parse_vegetation_response(response_text: str):
     """
-    Gemini 응답 텍스트를 파싱하여 structured JSON 형태로 반환.
-    기대 응답 형식:
+    Parsing Gemini response text and returning it in structured JSON form.
+    Expected response format:
     * **Pinus densiflora**: Description...
     """
 

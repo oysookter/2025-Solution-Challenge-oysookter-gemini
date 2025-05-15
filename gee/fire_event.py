@@ -23,11 +23,11 @@ def get_forest_fire_events():
     # XML → dict
     inner_json = xmltodict.parse(fire_data)
 
-    # 바로 dict에서 접근 (items['item']이 리스트)
+    # Direct access from the dict (items['item'])
     items = inner_json['response']['body']['items']['item']
     fires = []
 
-    # 단일 item도 리스트로 처리
+    # Treat a single item as a list
     if isinstance(items, dict):
         items = [items]
 
@@ -37,19 +37,19 @@ def get_forest_fire_events():
             area = float(item.get("damagearea") or 0.0)
             cause = item.get("firecause", "미상")
 
-            # 안전한 주소 파트 추출
+            # Safe address part extraction
             locsi = item.get("locsi", "")
             locgungu = item.get("locgungu", "")
             locmenu = item.get("locmenu", "")
             locdong = item.get("locdong", "")
             locbunji = item.get("locbunji", "")
 
-            # 주소 조립
+            # Assembling addresses
             parts = [locsi, locgungu]
             if locmenu and locmenu != locgungu:
                 parts.append(locmenu)
             parts.extend([locdong, locbunji])
-            address = ' '.join(filter(None, parts))  # 빈 값 제외
+            address = ' '.join(filter(None, parts))  # Except blank
 
             fires.append({
                 "date": date,
@@ -59,6 +59,6 @@ def get_forest_fire_events():
             })
 
         except Exception as e:
-            print(f"⚠️ 항목 처리 오류: {e}")
+            print(f"⚠️ Item Processing Error: {e}")
             continue
     return fires

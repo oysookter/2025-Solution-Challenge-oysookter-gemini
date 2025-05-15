@@ -49,5 +49,5 @@ def analyze_fire_damage_ratio(lat: float, lon: float):
         return round(damage_ratio, 2)
     
     except Exception as e:
-        print(f"산불 피해 분석 오류: {e}")
+        print(f"fire damage analysis error: {e}")
         return None
