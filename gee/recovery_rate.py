@@ -12,6 +12,10 @@ def predict_recovery_rate(lat: float, lon: float):
         ndvi_min = get_ndvi_at_point(lat, lon, min_start, min_end)
         ndvi_now = get_ndvi_at_point(lat, lon, now_start, now_end)
 
+        # None check
+        if None in (ndvi_pre, ndvi_min, ndvi_now):
+            raise ValueError("NDVI values could not be calculated.")
+
         # Recovery rate calc
         if ndvi_pre == ndvi_min:
             recovery_rate = 0.0
