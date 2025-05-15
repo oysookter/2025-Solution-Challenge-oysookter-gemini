@@ -5,7 +5,7 @@ def get_ndvi_at_point(lat: float, lon: float, before_date: str, after_date: str)
         point = ee.Geometry.Point([lon, lat])
         region = point.buffer(1000)  # 1km boundary
 
-        # ✅ Surface Reflectance + latest version
+        # Surface Reflectance + latest version
         collection = ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED") \
             .filterBounds(region) \
             .filterDate(before_date, after_date) \

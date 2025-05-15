@@ -55,15 +55,19 @@ def get_recovery_rate(
         "recovery": round(recovery, 2)
     }
 
-@app.get("/ndvi-recovery", tags=["Recovery"])
-def get_recovery_rate(lat: float, lon: float):
-    result = predict_recovery_rate(lat, lon)
+@app.get("/vegetation", tags=["Vegetation"])
+def get_vegetation_report(
+    lat: float = Query(..., description="Latitude"),
+    lon: float = Query(..., description="Longitude")
+):
+    ndvi_value = get_ndvi_at_point(lat, lon, before_date=NDVI_BEFORE_DATE, after_date=NDVI_AFTER_DATE)
+    if ndvi_value is None:
+        raise HTTPException(status_code=400, detail="Failed to get NDVI value from the spot.")
     
-    if result is None:
-        raise HTTPException(status_code=400, detail="NDVI recovery rate could not be calculated for this location.")
-
+    vegetation = vegetation_at_point(lat, lon, ndvi_value)
     return {
         "lat": lat,
         "lon": lon,
-        **result
+        "ndvi": round(ndvi_value, 3),
+        **vegetation
     }
