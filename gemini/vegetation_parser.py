@@ -1,5 +1,5 @@
 import re
-from vegetation_image import search_image_url_wikimedia
+from gemini.vegetation_image import search_image_url_wikimedia
 
 def extract_scientific_name(name: str) -> str:
     match = re.search(r"\(([^)]+)\)", name)
