@@ -52,7 +52,7 @@ def get_recovery_rate(
     return {
         "lat": lat,
         "lon": lon,
-        "recovery": round(recovery, 2)
+        "recovery": recovery
     }
 
 @app.get("/vegetation", tags=["Vegetation"])
