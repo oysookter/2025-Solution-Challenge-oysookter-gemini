@@ -4,13 +4,14 @@ def generate_vegetation_prompt(lat: float, lon: float, ndvi: float) -> str:
     return f"""
 The NDVI value at latitude {lat}, longitude {lon} is {round(ndvi, 3)}.
 
-Based on this value, please provide a brief 3-line explanation of what the NDVI level indicates.
+Based on this value, briefly explain in 3 lines what this NDVI level indicates in terms of vegetation density and condition.
 
 Then, list 3 plant species that are likely to grow in this region.
 
-Each plant should be formatted like this:
+- Only use scientific (Latin) names. Do not use common or English names.  
+- Each plant must follow this format:
 
-* **[Scientific or English Name]**: [Brief description]
+* **[Scientific Name]**: [Brief ecological description]
 
-Do not include Korean names.
+Do not include any Korean or common names. Only scientific names must be shown.
 """

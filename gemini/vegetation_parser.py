@@ -1,35 +1,40 @@
-import re
+from typing import Optional, Tuple, Dict, List
 from gemini.vegetation_image import search_image_url_wikimedia
 
-def extract_scientific_name(name: str) -> str:
-    match = re.search(r"\(([^)]+)\)", name)
-    return match.group(1).strip() if match else name.strip()
-
-def extract_name_and_text(line: str):
+def extract_name_and_text(line: str) -> Optional[Tuple[str, str]]:
+    """
+    ex: * **Pinus densiflora**: A hardy conifer...
+    """
     try:
+        # take scientific name
         name_part = line.split("**")[1].strip()
-        text = line.split("**")[2].lstrip(": ").strip()
-        name_part = name_part.replace("*", "")  # remove markdown asterisks
-
-        return name_part, None, text
+        text_part = line.split("**")[2].lstrip(": ").strip()
+        return name_part, text_part
     except Exception as e:
-        print(f"[파싱 오류] '{line}': {e}")
-        return None, None, None
+        print(f"[⚠️ parsing error] '{line}': {e}")
+        return None
 
-def build_veg_obj(veg):
+
+def build_veg_obj(veg: Optional[Tuple[str, str]]) -> Optional[Dict]:
+    """
+    make dic including scientific name and img url
+    """
     if veg is None or veg[0] is None:
         return None
-    name, _, text = veg
-    search_name = extract_scientific_name(name)
-    image_url = search_image_url_wikimedia(search_name)
-    print(f"🔍 '{name}' → '{search_name}' → image: {image_url}")
+    name, text = veg
+    image_url = search_image_url_wikimedia(name)
+    print(f"🔍 '{name}' → image: {image_url}")
     return {
         "name": name,
         "text": text,
         "image": image_url
     }
 
-def parse_vegetation_response(response_text: str):
+
+def parse_vegetation_response(response_text: str) -> Dict:
+    """
+    Gemini return explaination and 3 vegetations from entire text
+    """
     lines = response_text.splitlines()
     explanation_lines = []
     veg_lines = []
@@ -40,15 +45,15 @@ def parse_vegetation_response(response_text: str):
         else:
             explanation_lines.append(line.strip())
 
-    explanation = "\n".join([line for line in explanation_lines if line])
+    explanation = "\n".join(filter(None, explanation_lines))
+    vegs = [extract_name_and_text(line) for line in veg_lines[:3]]
+    veg_objs = [build_veg_obj(veg) for veg in vegs]
 
-    vegs = [extract_name_and_text(line) for line in veg_lines]
-
-    return {
-        "vegetation": {
-            "explanation": explanation,
-            "veg1": build_veg_obj(vegs[0]) if len(vegs) > 0 else None,
-            "veg2": build_veg_obj(vegs[1]) if len(vegs) > 1 else None,
-            "veg3": build_veg_obj(vegs[2]) if len(vegs) > 2 else None,
-        }
+    vegetation_result = {
+        "explanation": explanation,
+        "veg1": veg_objs[0] if len(veg_objs) > 0 else None,
+        "veg2": veg_objs[1] if len(veg_objs) > 1 else None,
+        "veg3": veg_objs[2] if len(veg_objs) > 2 else None,
     }
+
+    return {"vegetation": vegetation_result}

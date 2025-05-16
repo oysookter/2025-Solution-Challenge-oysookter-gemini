@@ -1,63 +1,65 @@
-import requests
-from typing import Optional
+from typing import Optional, Tuple, Dict
+from gemini.vegetation_image import search_image_url_wikimedia
 
-def search_image_url_wikimedia(query: str) -> Optional[str]:
+def extract_name_and_text(line: str) -> Optional[Tuple[str, str]]:
     """
-    Tries to fetch an image using exact title. If not found, falls back to search API.
+    Parses a line like:
+    * **Pinus densiflora**: A hardy conifer...
+    Returns a tuple of (scientific name, description).
     """
-    def get_image_from_title(title: str) -> Optional[str]:
-        search_url = "https://en.wikipedia.org/w/api.php"
-        params = {
-            "action": "query",
-            "format": "json",
-            "prop": "pageimages",
-            "piprop": "original",
-            "titles": title
-        }
-
-        response = requests.get(search_url, params=params, timeout=5)
-        response.raise_for_status()
-        data = response.json()
-
-        pages = data.get("query", {}).get("pages", {})
-        for page in pages.values():
-            if "original" in page:
-                return page["original"]["source"]
-        return None
-
-    def get_image_from_search(query: str) -> Optional[str]:
-        search_url = "https://en.wikipedia.org/w/api.php"
-        params = {
-            "action": "query",
-            "format": "json",
-            "prop": "pageimages",
-            "piprop": "original",
-            "generator": "search",
-            "gsrsearch": query,
-            "gsrlimit": 1
-        }
-
-        response = requests.get(search_url, params=params, timeout=5)
-        response.raise_for_status()
-        data = response.json()
-
-        pages = data.get("query", {}).get("pages", {})
-        for page in pages.values():
-            if "original" in page:
-                return page["original"]["source"]
-        return None
-
     try:
-        # 우선 괄호 안 학명 추출
-        clean_query = extract_scientific_name(query)
-
-        image = get_image_from_title(clean_query)
-        if image:
-            return image
-
-        print(f"[🔍 No exact match for '{clean_query}', trying search fallback]")
-        return get_image_from_search(clean_query)
-
+        name_part = line.split("**")[1].strip()
+        text_part = line.split("**")[2].lstrip(": ").strip()
+        return name_part, text_part
     except Exception as e:
-        print(f"[❗ Wikimedia API error] '{query}': {e}")
+        print(f"[⚠️ Parsing error] '{line}': {e}")
         return None
+
+
+def build_veg_obj(veg: Optional[Tuple[str, str]]) -> Optional[Dict[str, Optional[str]]]:
+    """
+    Builds a dictionary for one plant, including name, description, and image URL.
+    """
+    if not veg or not veg[0]:
+        return None
+
+    name, text = veg
+    image_url = search_image_url_wikimedia(name)
+    print(f"🔍 '{name}' → image: {image_url}")
+
+    return {
+        "name": name,
+        "text": text,
+        "image": image_url
+    }
+
+
+def parse_vegetation_response(response_text: str) -> Dict[str, Dict]:
+    """
+    Parses the full Gemini response text to extract:
+    - a general NDVI explanation
+    - up to 3 plant entries
+    Returns a dictionary under the 'vegetation' key.
+    """
+    lines = response_text.splitlines()
+    explanation_lines = []
+    veg_lines = []
+
+    for line in lines:
+        if line.startswith("* **"):
+            veg_lines.append(line)
+        else:
+            explanation_lines.append(line.strip())
+
+    explanation = "\n".join(filter(None, explanation_lines))
+    vegs = [extract_name_and_text(line) for line in veg_lines[:3]]
+    veg_objs = [build_veg_obj(veg) for veg in vegs]
+
+    return {
+        "vegetation": {
+            "explanation": explanation,
+            "veg1": veg_objs[0] if len(veg_objs) > 0 else None,
+            "veg2": veg_objs[1] if len(veg_objs) > 1 else None,
+            "veg3": veg_objs[2] if len(veg_objs) > 2 else None,
+        }
+    }
