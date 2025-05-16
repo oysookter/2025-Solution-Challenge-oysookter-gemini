@@ -8,10 +8,10 @@ Based on this value, briefly explain in 3 lines what this NDVI level indicates i
 
 Then, list 3 plant species that are likely to grow in this region.
 
-- Only use scientific (Latin) names. Do not use common or English names.  
-- Each plant must follow this format:
+* Only use scientific (Latin) names. Do not use common or English names.
+* Each plant must follow this format:
 
-* **[Scientific Name]**: [Brief ecological description]
+- **[Scientific Name]**: [Brief ecological description]
 
 Do not include any Korean or common names. Only scientific names must be shown.
 """
