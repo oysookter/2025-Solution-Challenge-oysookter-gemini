@@ -1,17 +1,21 @@
-# vegetation_parser.py
-
 from typing import Optional, Tuple, Dict
-from gemini.vegetation_image_utils import search_image_url_wikimedia 
+from gemini.vegetation_image import search_image_url_wikimedia
+import re
+
 
 def extract_name_and_text(line: str) -> Optional[Tuple[str, str]]:
     """
-    Parses a line like:
-    * **Pinus densiflora**: A hardy conifer...
-    Returns a tuple of (scientific name, description).
+    Extracts scientific name and description from a line like:
+    - **Pinus densiflora**: A hardy conifer...
+    or with underscores or bullets.
     """
     try:
-        name_part = line.split("**")[1].strip()
-        text_part = line.split("**")[2].lstrip(": ").strip()
+        # **<name>**: <description>
+        match = re.search(r"\*\*[_]*([A-Za-z\s]+)[_]*\*\*:\s*(.+)", line)
+        if not match:
+            raise ValueError("No valid format matched")
+        name_part = match.group(1).strip()
+        text_part = match.group(2).strip()
         return name_part, text_part
     except Exception as e:
         print(f"[⚠️ Parsing error] '{line}': {e}")
@@ -48,10 +52,12 @@ def parse_vegetation_response(response_text: str) -> Dict[str, Dict]:
     veg_lines = []
 
     for line in lines:
-        if line.startswith("* **"):
+        line = line.strip()
+        # **scientific name**: explaination
+        if "**" in line and ":" in line:
             veg_lines.append(line)
         else:
-            explanation_lines.append(line.strip())
+            explanation_lines.append(line)
 
     explanation = "\n".join(filter(None, explanation_lines))
     vegs = [extract_name_and_text(line) for line in veg_lines[:3]]
